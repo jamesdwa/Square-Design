@@ -12,7 +12,8 @@ import { Square, fromJson, toJson } from './square';
 export type ListCallback = (names: string[]) => void;
 
 /** 
- * Accesses /names server endpoint and receives list of files.
+ * Accesses /names server endpoint and receives list of file "names".
+ * Receives list from server in form: {names: string[]}
  * Passes list to the given callback.
  * @param cb callback that accepts a string[] of file names as its param.
  *           Called when server response is received and parsed.
@@ -29,8 +30,8 @@ export type LoadCallback = (name: string, sq: Square | null) => void;
 
 /** 
  * Accesses /load server endpoint, passing given "name" as a query param,
- * and receives record containing file "content" for file name.
- * Passes file content to the given callback.
+ * and receives {content: unknown} from server for file name.
+ * Parses file content to square and passes to the given callback.
  * @param name of file to get contents of
  * @param cb callback that accepts a file name and its contents.
  *           Called when server response is received and parsed.
@@ -48,9 +49,9 @@ export type SaveCallback = (name: string, saved: boolean) => void;
 /** Stores the contents of the given file on the server. */
 /** 
  * Accesses /save server endpoint, passing given "name" and square file 
- * "content" in the BODY of the request. Receives record containing "saved"
+ * "content" in the BODY of the request. Receives record {saved: boolean}
  * confirmation on completion. 
- * Passes confirmation of save success to the given callback.
+ * Passes confirmation boolean to the given callback.
  * @param name of file to get contents of
  * @param cb callback that accepts a file name and its contents.
  *           Called when server response is received and parsed.
