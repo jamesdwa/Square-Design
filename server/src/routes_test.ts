@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as httpMocks from 'node-mocks-http';
-import { dummy } from './routes';
+import { dummy, load, save, names, reset } from './routes';
 
 
 describe('routes', function() {
@@ -25,4 +25,60 @@ describe('routes', function() {
 
 
   // TODO: add tests for your routes
+  it('save', function() {
+    let req = httpMocks.createRequest({method: 'POST', url: '/api/save', body: {name: 'Zach', content: 'Hello'}});
+    let res = httpMocks.createResponse();
+    save(req, res);
+    assert.deepStrictEqual(res._getStatusCode(), 200);
+    assert.deepStrictEqual(res._getData(), {saved: true});
+  
+    req = httpMocks.createRequest({method: 'POST', url: '/api/save', body: {content: 'Hello'}});
+    res = httpMocks.createResponse();
+    save(req, res);
+    assert.deepStrictEqual(res._getStatusCode(), 400);
+    assert.deepStrictEqual(res._getData(), {error: 'Missing body'});
+  
+    req = httpMocks.createRequest({method: 'POST', url: '/api/save', body: {name: 'Zach'}});
+    res = httpMocks.createResponse();
+    save(req, res);
+    assert.deepStrictEqual(res._getStatusCode(), 400);
+    assert.deepStrictEqual(res._getData(), {error: 'Missing body'});
+  });
+  
+  it('load', function() {
+    let req = httpMocks.createRequest({method: 'GET', url: '/api/load', query: {name: 'Zach'}});
+    let res = httpMocks.createResponse();
+    load(req, res);
+    assert.deepStrictEqual(res._getStatusCode(), 200);
+    assert.deepStrictEqual(res._getData(), {name: 'Zach', content: 'Hello'});
+    
+    req = httpMocks.createRequest({method: 'GET', url: '/api/load'});
+    res = httpMocks.createResponse();
+    load(req, res);
+    assert.deepStrictEqual(res._getStatusCode(), 400);
+    assert.deepStrictEqual(res._getData(), {error: 'Missing body'});
+    
+    req = httpMocks.createRequest({method: 'GET', url: '/api/load', query: {name: 'NonExisting'}});
+    res = httpMocks.createResponse();
+    load(req, res);
+    assert.deepStrictEqual(res._getStatusCode(), 404);
+    assert.deepStrictEqual(res._getData(), {error: 'Name not found'});
+  });
+
+  it('names', function() {
+    const req1 = httpMocks.createRequest({method: 'GET', url: '/api/names'});
+    const res1 = httpMocks.createResponse();
+    names(req1, res1);
+    assert.deepStrictEqual(res1._getStatusCode(), 200);
+    assert.deepStrictEqual(res1._getData(), {names: ['Zach']});
+  });
+
+  it('reset', function() {
+    reset();
+    const req1 = httpMocks.createRequest({method: 'GET', url: '/api/names'});
+    const res1 = httpMocks.createResponse();
+    names(req1, res1);
+    assert.deepStrictEqual(res1._getStatusCode(), 200);
+    assert.deepStrictEqual(res1._getData(), {names: []});
+  });
 });
